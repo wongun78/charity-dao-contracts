@@ -23,9 +23,9 @@ contract CharityDao {
     event ProposalCreated(uint proposalId, string title, address creator);
     event Voted(uint proposalId, address voter);
     event ProposalExecuted(uint proposalId, address recipient, uint amount);
+    event TransferFailed(uint proposalId, address recipient, uint amount);
 
-    function donate() public payable {
-    }
+    function donate() public payable {}
 
     function createProposal(
         string memory _title,
@@ -60,9 +60,13 @@ contract CharityDao {
         require(proposal.voteCount >= 3, "Not enough votes");
         require(address(this).balance >= proposal.amount, "Insufficient contract balance");
 
-        payable(proposal.recipient).transfer(proposal.amount);
-        proposal.executed = true;
+        (bool success, ) = payable(proposal.recipient).call{value: proposal.amount}("");
+        if (!success) {
+            emit TransferFailed(_proposalId, proposal.recipient, proposal.amount);
+            return;
+        }
 
+        proposal.executed = true;
         emit ProposalExecuted(_proposalId, proposal.recipient, proposal.amount);
     }
 }
