@@ -15,39 +15,54 @@ contract CharityDao {
     address public admin;
     Proposal[] public proposals;
     mapping(uint => mapping(address => bool)) public hasVoted;
+
     constructor() {
         admin = msg.sender;
     }
 
-    function donate() payable public{
+    event ProposalCreated(uint proposalId, string title, address creator);
+    event Voted(uint proposalId, address voter);
+    event ProposalExecuted(uint proposalId, address recipient, uint amount);
+
+    function donate() public payable {
     }
 
-    function createProposal(string memory _title, string memory _description, uint _amount, address _recipient) public {
-             Proposal memory newProposal = Proposal({
-                title: _title,
-                description: _description,
-                amount: _amount,
-                recipient: _recipient,
-                voteCount: 0,
-                executed: false
-             });
+    function createProposal(
+        string memory _title,
+        string memory _description,
+        uint _amount,
+        address _recipient
+    ) public {
+        Proposal memory newProposal = Proposal({
+            title: _title,
+            description: _description,
+            amount: _amount,
+            recipient: _recipient,
+            voteCount: 0,
+            executed: false
+        });
         proposals.push(newProposal);
-        }
+        emit ProposalCreated(proposals.length - 1, _title, msg.sender);
+    }
 
     function vote(uint _proposalId) public {
         Proposal storage proposal = proposals[_proposalId];
-        require(!hasVoted[_proposalId][msg.sender], "Already Voted");
+        require(!hasVoted[_proposalId][msg.sender], "Already voted");
         hasVoted[_proposalId][msg.sender] = true;
         proposal.voteCount += 1;
+        emit Voted(_proposalId, msg.sender);
     }
 
-    function execute(uint _proposalId) public{
-        require(_proposalId < proposals.length, "Must have proposal");
+    function execute(uint _proposalId) public {
+        require(_proposalId < proposals.length, "Proposal does not exist");
         Proposal storage proposal = proposals[_proposalId];
-        require(!proposal.executed, "Not executed yet");
-        require(proposal.voteCount >=3, "Not have enough vote yet");
+        require(!proposal.executed, "Proposal already executed");
+        require(proposal.voteCount >= 3, "Not enough votes");
         require(address(this).balance >= proposal.amount, "Insufficient contract balance");
+
         payable(proposal.recipient).transfer(proposal.amount);
         proposal.executed = true;
+
+        emit ProposalExecuted(_proposalId, proposal.recipient, proposal.amount);
     }
-    }
+}
