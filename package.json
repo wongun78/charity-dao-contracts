@@ -1,0 +1,28 @@
+{
+  "name": "charity-dao-contracts",
+  "version": "1.0.0",
+  "description": "This repository contains the smart contracts for the Charity DAO, a decentralized charity fund that distributes funds based on on-chain community voting.",
+  "main": "hardhat.config.js",
+  "scripts": {
+    "test": "npx hardhat test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wongun78/charity-dao-contracts.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/wongun78/charity-dao-contracts/issues"
+  },
+  "homepage": "https://github.com/wongun78/charity-dao-contracts#readme",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.0.0",
+    "@types/node": "^24.0.3",
+    "hardhat": "^2.25.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
